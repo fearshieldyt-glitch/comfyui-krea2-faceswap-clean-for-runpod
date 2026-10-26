@@ -17,10 +17,10 @@ RUN --mount=type=secret,id=hf_token BACKOFFS="10 20 30 60 90" && for i in 1 2 3 
 RUN --mount=type=secret,id=hf_token BACKOFFS="10 20 30 60 90" && for i in 1 2 3 4 5; do HF_TOKEN="$(cat /run/secrets/hf_token 2>/dev/null || true)" comfy model download --url 'https://huggingface.co/Comfy-Org/Krea-2/resolve/main/vae/qwen_image_vae.safetensors' --relative-path models/vae --filename 'qwen_image_vae.safetensors' && break; if [ $i -eq 5 ]; then echo "model-download failed after 5 attempts" >&2; exit 1; fi; SLEEP=$(echo $BACKOFFS | cut -d ' ' -f $i) && echo "model-download attempt $i failed; retrying in $SLEEP seconds" >&2; sleep $SLEEP; done
 # Install Krea2 Identity Edit v1.2
 RUN mkdir -p /comfyui/models/loras && \
-    curl -fL --retry 5 --retry-delay 5 \
-    "https://huggingface.co/conradlocke/krea2-identity-edit/resolve/main/krea2_identity_edit_v1_2.safetensors" \
-    -o /comfyui/models/loras/krea2_identity_edit_v1_2.safetensors && \
-    test $(stat -c%s /comfyui/models/loras/krea2_identity_edit_v1_2.safetensors) -gt 1000000000
+    comfy model download \
+    --url "https://huggingface.co/conradlocke/krea2-identity-edit/resolve/main/krea2_identity_edit_v1_2.safetensors" \
+    --relative-path models/loras \
+    --filename krea2_identity_edit_v1_2.safetensors
 # copy all input data (like images or videos) into comfyui (uncomment and adjust if needed)
 # COPY input/ /comfyui/input/
 
